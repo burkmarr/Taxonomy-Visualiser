@@ -1,0 +1,198 @@
+﻿
+body {
+    font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif;
+    font-size: 12px;
+    margin: 0px;
+    overflow: visible;
+}
+
+.videoWrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    padding-top: 25px;
+    height: 0;
+}
+
+.videoWrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+label {
+    font-weight: normal;
+    display: inline;
+}
+
+#tombioMain{
+    display:none;
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    background-color: rgba(237, 245, 245, 1);
+    width: 100%;
+    z-index: 700;
+}
+
+svg{
+    overflow: visible;
+    position: fixed;
+    left: 0px;
+    top: 0px;
+}
+
+#tombioInfoDialog {
+    padding: 0 0 0 0;
+}
+
+#logovis{
+    position: fixed;
+    width: 100px;
+    right: 45px;
+    top: 5px;
+}
+
+#closeVis{
+    position: fixed;
+    right: 5px;
+    top: 5px;
+    cursor: pointer;
+    z-index: 5000;
+}
+
+#toolTips {
+    background-color: white;
+    height: 25px;
+    line-height: 25px;
+    margin-bottom: 5px;
+    padding-left: 5px;
+    font-weight: bold;
+}
+
+#taxControls {
+    position: fixed;
+    top: 0px;
+    z-index: 1000;
+    padding: 5px;
+    background-color:rgba(237, 245, 245, 0.7);
+}
+
+#taxControlUpDown{
+    width: 20px;
+    vertical-align: top;
+    margin-top: 3px;
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+#depthSlider {
+    margin-bottom: 10px;
+    margin-top: 2px;
+    display: inline-block;
+    width: 115px;
+}
+
+#depthLabel {
+    vertical-align: top !important;
+    margin-right: 5px;
+}
+
+#taxSearch {
+    vertical-align: top;
+    height: 20px;
+    padding: 3px;
+    margin-top: 0px;
+    width: 150px;
+    background: white;
+}
+
+#taxButton, #jsonShow, #taxClear, #taxCentre, #taxInfo, #showVis {
+    vertical-align: top;
+    height: 28px;
+    padding: 3px;
+}
+
+#jsonShow, #taxClear, #taxInfo, #showVis {
+    margin-bottom: 10px;
+}
+
+
+#nbnSourceFilter-button, #nbnFormedFilter-button, #nameFormat-button {
+    margin-bottom: 5px;
+}
+
+#nbnSourceFilter, #nbnFormedFilter, #nameFormat {
+    width: 270px;
+}
+
+#authorityLabel {
+    position: relative;
+    top: -2px;
+}
+
+#authorityDiv {
+    margin-bottom: 5px;   
+}
+
+#soundsLabel {
+    position: relative;
+    top: -3px;
+}
+
+#soundsDiv {
+    vertical-align: top;
+    display: inline-block;
+    position: relative;
+    top: -1px;
+    margin-left: 5px;
+}
+
+#taxSource {
+    width: 70px;
+    height: 25px;
+}
+
+#gbifPagingDiv {
+    margin-bottom: 10px;
+}
+
+.ui-widget {
+    font-size: 12px;
+}
+
+.ui-front {
+    z-index: 1000;
+}
+
+.node circle, #popupNode {
+    fill: white;
+	stroke: #888;
+	stroke-width: 2px;
+}
+
+.node, #popupNode {
+    cursor: pointer;
+}
+
+.node text {
+	font: 12px sans-serif;
+}
+
+.link {
+	fill: none;
+	stroke: #ccc;
+	stroke-width: 2px;
+}
+
+#jsonview {
+    overflow: auto;
+}
+
+#jsonresponse {padding: 5px; margin: 5px; }
+#jsonresponse .string { color: green; }
+#jsonresponse .number { color: darkorange; }
+#jsonresponse .boolean { color: blue; }
+#jsonresponse .null { color: magenta; }
+#jsonresponse .key { color: red; }

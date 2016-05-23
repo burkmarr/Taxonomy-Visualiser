@@ -1,0 +1,52 @@
+﻿<?php
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: X-Requested-With');
+//Tried below to prevent BOM generation, but failed.
+//mb_internal_encoding('UTF-8');
+//mb_http_output('UTF-8');
+//mb_http_input('UTF-8');
+//mb_language('uni');
+//mb_regex_encoding('UTF-8');
+//ob_start('mb_output_handler');
+//Cannot set type to JSON because of BOM problem - must
+//be returned as text in order for recipient to strip
+//off BOM.
+//header('Content-Type: application/json');
+/**
+* @file
+*
+* Server wrapper for a rest call.
+*/
+/**
+* Implements hook_menu().
+*/
+function tombio_rest_call_menu() {
+  $items = array();
+  $items['tombio-rest-call'] = array(
+    'title' => 'Tom.bio Server Rest Call',
+    'description' => 'Tom.bio Service to wrap up a rest call.',
+    'access callback' => TRUE,
+    'page callback' => 'tombio_rest_call_page',
+  );
+  return $items;
+}
+
+/**
+ * Page to wrap up a rest call.
+ */
+function tombio_rest_call_page() {
+  $response = file_get_contents(urldecode($_SERVER['QUERY_STRING']));
+  
+  //Can't use any of the below to return proper JSON because,
+  //for some reason, the PHP always prepends output with a
+  //Byte Order Mark (BOM) which prevents jQuery or D3 interpreting
+  //it as valid JSON. So must be sent as text and then the BOM
+  //stripped off in recieving function.
+  //drupal_json_output($response);
+  //echo json_encode($response);
+  //echo json_encode($response, JSON_PRETTY_PRINT);
+
+  //echo $_SERVER['QUERY_STRING'];
+  echo $response;
+  exit;
+}

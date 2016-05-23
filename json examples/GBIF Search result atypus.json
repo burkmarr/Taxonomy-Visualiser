@@ -1,0 +1,23 @@
+http://api.gbif.org/v1/species/match?name=atypus
+{
+	"usageKey": 2167233,
+	"scientificName": "Atypus Latreille, 1804",
+	"canonicalName": "Atypus",
+	"rank": "GENUS",
+	"status": "ACCEPTED",
+	"confidence": 91,
+	"matchType": "EXACT",
+	"kingdom": "Animalia",
+	"phylum": "Arthropoda",
+	"order": "Araneae",
+	"family": "Atypidae",
+	"genus": "Atypus",
+	"kingdomKey": 1,
+	"phylumKey": 54,
+	"classKey": 367,
+	"orderKey": 1496,
+	"familyKey": 3398,
+	"genusKey": 2167233,
+	"synonym": false,
+	"class": "Arachnida"
+}

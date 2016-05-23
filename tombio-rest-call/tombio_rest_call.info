@@ -1,0 +1,5 @@
+﻿
+name = Tombio Rest Call 
+description = Makes a rest call from the server to overcome CORS problems.
+core = 7.x
+files[] = tombio_rest_call.module

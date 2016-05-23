@@ -1,0 +1,13 @@
+{
+	"taxonVersionKey": "NHMSYS0000841308",
+	"name": "Araneae",
+	"languageKey": "la",
+	"taxonOutputGroupKey": "NHMSYS0000629149",
+	"organismKey": "NBNORG0000070963",
+	"rank": "Order",
+	"nameStatus": "Recommended",
+	"versionForm": "Well-formed",
+	"gatewayRecordCount": 0,
+	"href": "https://data.nbn.org.uk/Taxa/NHMSYS0000841308",
+	"ptaxonVersionKey": "NHMSYS0000841308"
+}
