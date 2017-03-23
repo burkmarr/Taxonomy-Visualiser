@@ -1,29 +1,29 @@
 ﻿<div style="position: relative">
-   
+
     <p>
-        This visualisation is a tool to explore taxonomies managed by both GBIF (Global Biodiversity Information Facility) 
-        and NBN (National Bioidversity Network). You can search for organisms and build phylogenic trees showing their
+        This visualisation is a tool to explore taxonomies managed by both GBIF (Global Biodiversity Information Facility)
+        and NBN(National Bioidversity Network ). You can search for organisms and build phylogenic trees showing their
         positions within the taxonomies. The global GBIF taxonomy is know as the 'GBIF Backbone Taxonomy'.
-        The NBN taxonomy is UK specific, created primarily to facilitate access to the NBN Gateway. 
+        The NBN taxonomy is UK specific, created primarily to facilitate access to the NBN Altas.
         Both are accessed through
         publicly accessible web services (REST web services) and displayed with the help
-        of the Data Driven Documents (D3) javascript library - particularly the 'Tree Layout' feature. 
+        of the Data Driven Documents (D3) javascript library - particularly the 'Tree Layout' feature.
     </p>
     <p>
         Use the mouse wheel to zoom in and out and pan by dragging the mouse (or use the usual
         touch screen equivalents). Click on nodes to see what you
-        can do with them. 
+        can do with them.
     </p>
     <button id="showVis"></button>
     <p>
         Start the visualisation with the button above. You can also watch a 3 minute video (below) that demonstrates
         how the visualisation operates.
     </p>
-    
+
     <p>
         <div class="videoWrapper"><iframe width="854" height="480" src="https://www.youtube.com/embed/40U2Uz-WkrE" frameborder="0" allowfullscreen></iframe></iframe></div>
     </p>
-   
+
     <div id="tombioMain">
 
         <div id="tombioInfoDialog">
@@ -32,40 +32,54 @@
                 <h3>Overview</h3>
                 <div>
                     <p>
-                        <img style="float:right" src="/sites/vis/taxv1/resources/d3.png" width="30px"/>
+                        <img style="float:right" src="##taxv1path##resources/d3.png" width="30px" />
                         This visualisation is the marriage of two key elements:
                         <ul>
                             <li>web services providing access to key taxonomic databases, and</li>
-                            <li><a href="http://d3js.org/" target="_blank">Data Driven Document (D3)</a>
-                             visualistion tools, in particular the 
-                                <a href="https://github.com/mbostock/d3/wiki/Tree-Layout" target="_blank">'tree layout'</a>.</li>
+                            <li>
+                                <a href="http://d3js.org/" target="_blank">Data Driven Document (D3)</a>
+                                visualistion tools, in particular the
+                                <a href="https://github.com/mbostock/d3/wiki/Tree-Layout" target="_blank">'tree layout'</a>.
+                            </li>
                         </ul>
-                        </p>
+                    </p>
                     <p>
-                        <img style="float:right" src="/sites/vis/taxv1/resources/gbif.png" width="100px" />
+                        <img style="float:right" src="##taxv1path##resources/gbif.png" width="100px" />
                         The Global Biodiversity Information Facility (GBIF) provides a rich set of REST web services
-                        that together comprise the 
-                        <a href="http://www.gbif.org/developer/summary" target="_blank">GBIF API</a> (Application 
+                        that together comprise the
+                        <a href="http://www.gbif.org/developer/summary" target="_blank">GBIF API</a> (Application
                         Programmer's Interface). This visualisation uses a number of the GBIF API's 'Species' web
-                        services giving access to the underlying 
+                        services giving access to the underlying
                         <a href="http://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c" target="_blank">'GBIF Backbone Taxonomy'</a>
                         which is a synthesis of all the checklists that contribute to the GBIF project. It comprises of
                         over 4 million taxa.
                     </p>
                     <p>
-                        <img style="float:right" src="/sites/vis/taxv1/resources/nbn.png" width="100px" />
-                        The National Biodiversity Network (NBN) also provides a set of 
-                        <a href="https://data.nbn.org.uk/Documentation/Web_Services/" target="_blank">web services </a>
-                        for application developers. The 
-                        <a href="https://data.nbn.org.uk/Documentation/Web_Services/Web_Services_Examples/REST/Taxon_Search/" target="_blank">'Taxon Search'</a> 
-                        web service provides access to the taxonomy supporting the NBN project. The NBN taxonomy
+                        <img style="float:right" src="##taxv1path##resources/nbn.png" width="100px" />
+                        The National Biodiversity Network (NBN) also provides a set of
+                        <a href="https://api.nbnatlas.org/" target="_blank">web services </a>
+                        for application developers. The
+                        'Species Profile'</a>
+                        web service provides access to the taxonomy supporting the NBN Atlas
+                        project which is based on the UK Species Inventory. The NBN Atlas taxonomy
                         only includes species which have been recorded in the UK, though for some taxonomic groups
                         (e.g. birds) this can include many rare and vagrant species.
                     </p>
+
+                    <!--<p>
+                        <img style="float:right" src="##taxv1path##resources/nbn.png" width="100px" />
+                        The National Biodiversity Network (NBN) also provides a set of
+                        <a href="https://data.nbn.org.uk/Documentation/Web_Services/" target="_blank">web services </a>
+                        for application developers. The
+                        <a href="https://data.nbn.org.uk/Documentation/Web_Services/Web_Services_Examples/REST/Taxon_Search/" target="_blank">'Taxon Search'</a>
+                        web service provides access to the taxonomy supporting the NBN project. The NBN taxonomy
+                        only includes species which have been recorded in the UK, though for some taxonomic groups
+                        (e.g. birds) this can include many rare and vagrant species.
+                    </p>-->
                 </div>
                 <h3>Using the visualisation</h3>
                 <div>
-                    <img src="/sites/vis/taxv1/resources/help/controls.png"/>
+                    <img src="##taxv1path##resources/help/controls.png" />
                     <p>
                         The main control appears at the top-left of the visualisation. The white area at the top of this
                         is a <b>tool tip</b> area that gives information about the node (circle) that you move the mouse
@@ -75,24 +89,35 @@
                     </p>
                     <p>
                         Immediately below the tip area is the <b>search box and button</b>. Type a name into the search box and
-                        then click the search button. What happens next depends on whether you have 'GBIF' or 'NBN' selected
+                        then click the search button. What happens next depends on whether you have 'Atlas' or 'GBIF' selected
                         in the <b>source drop-down list</b> immediately to the right of the search button. When GBIF is selected,
-                        any taxa which match your search term will appear with their taxonomic ancestory in the visualisation. The
+                        any taxa which match your search term will appear with their taxonomic ancestry in the visualisation. The
                         taxonomic search for GBIF will only match exact scientific names (though it will also search synonyms). The
-                        NBN search works differently - it will fuzzy match your search terms and searches both common and
-                        scientific names. Because of this fuzzy matching, it can bring back a great many matches (limited to 
+                        NBN Atlas search works differently - it will fuzzy match your search terms and searches both common and
+                        scientific names. Because of this fuzzy matching, it can bring back a great many matches (limited to
                         100 in this visualisation).
                     </p>
-                    <p>
-                        <img src="/sites/vis/taxv1/resources/select-icon.png" style="float: right" />
-                        For the NBN search, the search results are grouped according to some broad 'taxon groups' familiar to
+                    <!--<p>
+                        <img src="##taxv1path##resources/select-icon.png" style="float: right" />
+                        For the NBN  search, the search results are grouped according to some broad 'taxon groups' familiar to
                         users of the NBN and presented under a special 'Search' node in the visualisation. To select a particular
-                        node and add it to the full taxonomic hierarchy in the visulasation, click on it and then click on the button
+                        node and add it to the full taxonomic hierarchy in the visualisation, click on it and then click on the button
                         represented by the finger icon. When they appear in the full taxonomic hierarchy, a taxon will be represented
                         by its 'preferred taxon' in the NBN taxonomy.
+                    </p>-->
+                    <p>
+                        <img src="##taxv1path##resources/select-icon.png" style="float: right" />
+                        For the NBN Atlas search, the search results are grouped according first according to whether an exact
+                        or 'fuzzy' match was found with your search term. Then they are grouped under their taxonomic class (i.e. the
+                        taxonomic rank of class). Only valid taxa are presented in the search results.
+                        If the matched taxon is at a higher taxonomic rank than class, it is simply
+                        shown directly under the 'exact' or 'fuzzy' node. The search results are presented under
+                        a special 'Search' node in the visualisation. To select a particular
+                        node and add it to the full taxonomic hierarchy in the visualisation, click on it and then click on the button
+                        represented by the finger icon.
                     </p>
                     <p>
-                        <img src="/sites/vis/taxv1/resources/help/zoom.png" width="280px" style="float: left" />
+                        <img src="##taxv1path##resources/help/zoom.png" width="280px" style="float: left" />
                         The taxonomy tree can be <b>panned and zoomed</b> using the mouse. Use the mouse wheel to zoom in and out
                         and just drag the mouse to pan. Sometimes when taxa are being added or removed from the visualisation,
                         there might not be any portion of it visible on the screen. To quickly re-centre the tree on the
@@ -101,52 +126,52 @@
                     <p>
                         Click on any node in the taxonomy tree view to show a number of function buttons (black-bordered white
                         circular buttons with a black/red icon) from which you can expand or reduce the taxonomic tree. Each
-                        of these functions is desrcibed below.
+                        of these functions is described below.
                     </p>
                     <p>
-                        <img src="/sites/vis/taxv1/resources/children-icon.png" style="float: right; height: 30px" />
+                        <img src="##taxv1path##resources/children-icon.png" style="float: right; height: 30px" />
                         The <b>children button</b> lets you query the GBIF/NBN taxonomy to find 'children' of the
                         taxon you clicked on. When you click this button, a call is made to the GBIF/NBN
-                        web service API to retrieve all direct decendents of the taxon you clicked on. When the call
-                        returns its results, they are added to the visulasation as children of this node.
+                        web service API to retrieve all direct descendants of the taxon you clicked on. When the call
+                        returns its results, they are added to the visualisation as children of this node.
                     </p>
                     <p>
-                        <img src="/sites/vis/taxv1/resources/help/page.png" style="float: right; height: 50px" />
+                        <img src="##taxv1path##resources/help/page.png" style="float: right; height: 50px" />
                         When the GBIF web services return children nodes they do so a 'page' at a time.
                         The default 'page' size is 20. When there are still more child nodes to retrieve,
                         a <b>page icon</b> appears below the last child. Click on this to retrieve the
                         next page of results.
                     </p>
                     <p>
-                        <img src="/sites/vis/taxv1/resources/delete-icon.png" style="float: right; height: 30px" />
-                        The <b>delete button</b> will delete the taxon you clicked on plus all decendents
+                        <img src="##taxv1path##resources/delete-icon.png" style="float: right; height: 30px" />
+                        The <b>delete button</b> will delete the taxon you clicked on plus all descendants
                         of that taxon. So you can use this button to
                         delete a whole branch of a tree, including the taxon you clicked on.
                     </p>
                     <p>
-                        <img src="/sites/vis/taxv1/resources/delete-children-icon.png" style="float: right; height: 30px" />
-                        The <b>delete children button</b> will delete all decendents
+                        <img src="##taxv1path##resources/delete-children-icon.png" style="float: right; height: 30px" />
+                        The <b>delete children button</b> will delete all descendants
                         of the taxon you clicked on. So you can use this button to
                         delete a whole branch of a tree, <i>below</i> the taxon you clicked on.
                     </p>
                     <p>
-                        <img src="/sites/vis/taxv1/resources/delete-childless-children-icon.png" style="float: right; height: 30px" />
-                        The <b>delete childless children button</b> will delete all decendents
-                        of the taxon you clicked on <i>unless</i> they themselves have children. 
+                        <img src="##taxv1path##resources/delete-childless-children-icon.png" style="float: right; height: 30px" />
+                        The <b>delete childless children button</b> will delete all descendants
+                        of the taxon you clicked on <i>unless</i> they themselves have children.
                         So you can use this button to prune a tree  below a taxon, leaving any
                         branches which extend beyond one child taxon.
                     </p>
                     <p>
-                        <img src="/sites/vis/taxv1/resources/expand-icon.png" style="float: right; height: 30px" />
-                        The <b>expand/contract button</b> removes all decendents of the taxon you
+                        <img src="##taxv1path##resources/expand-icon.png" style="float: right; height: 30px" />
+                        The <b>expand/contract button</b> removes all descendants of the taxon you
                         have selected from the display ('contracts' them), but it doesn't delete them. When a taxon has
-                        decendents which are not visible, the circle representing it is outlined in black
+                        descendants which are not visible, the circle representing it is outlined in black
                         instead of grey and the icon shown above flips to show that selecting it again will
-                        'expand' the hidden decendents so that they are shown.
+                        'expand' the hidden descendants so that they are shown.
                     </p>
-                    <img src="/sites/vis/taxv1/resources/help/controls-expanded.png" />
+                    <img src="##taxv1path##resources/help/controls-expanded.png" />
                     <p>
-                        <img src="/sites/vis/taxv1/resources/down.png" style="float: right; height: 30px" />
+                        <img src="##taxv1path##resources/down.png" style="float: right; height: 30px" />
                         Clicking on the <b>expand</b> icon moves the controls panel down to show a number of
                         controls that are ordinarily hidden.
                     </p>
@@ -163,12 +188,20 @@
                         Checking the <b>Show authority for scientific names</b> box expands labels in the taxonomic
                         tree to include the authority of each scientific name. Checking this box also stretches the
                         taxonomic tree on the x-axis in order to provide more room for the labels.
+                        <i>
+                            Note that for the NBN Atlas visualisation, you will only see authority names where the
+                            taxa represented an 'end point' in a search.
+                        </i>
                     </p>
                     <p>
                         Use the drop-down list above this to indicate if taxon labels should comprise of
-                        <b>scientific names</b>, <b>common names</b> or some combination of these. 
+                        <b>scientific names</b>, <b>common names</b> or some combination of these.
                         The selection made here will change the stretch factor on the x-axis in order to
                         accommodate the general length of the labels.
+                        <i>
+                            Note that for the NBN Atlas visualisation, you will only see common names where the
+                            taxa represented an 'end point' in a search.
+                        </i>
                     </p>
                     <p>
                         The <b>information button</b> invokes this dialog. The <b>show last JSON query button</b> invokes
@@ -200,7 +233,7 @@
                             </li>
                         </ul>
                         In addition, the message boxes ('growlers') are provided by a Javascript library
-                        from Kevin Sylvestre. All of these libraries 
+                        from Kevin Sylvestre. All of these libraries
                         make heavy use of Cascading Style Sheets (CSS) and D3, in particular,
                         relies on Scaleable Vector Graphics (SVG).
                     </p>
@@ -224,7 +257,7 @@
             <button id="taxInfo"></button>
             <button id="jsonShow"></button>
             <button id="taxClear"></button>
-            
+
             <div>
                 <select id="nameFormat">
                     <option value="scientific" selected>Scientific name only</option>
@@ -265,28 +298,29 @@
             <input type="text" id="taxSearch">
             <button id="taxButton"></button>
             <select id="taxSource">
-                <option value="gbif" selected>GBIF</option>
+                <option value="atlas" selected>Atlas</option>
                 <option value="nbn">NBN</option>
+                <option value="gbif">GBIF</option>
             </select>
             <button id="taxCentre"></button>
-            <img id="taxControlUpDown" src="/sites/vis/taxv1/resources/down.png" />
-            
+            <img id="taxControlUpDown" src="##taxv1path##resources/down.png" />
+
         </div>
 
         <!--<div style="position:relative">
-            <img id="logovis" src="/sites/vis/taxv1/resources/tombio-logo.png">
+            <img id="logovis" src="##taxv1path##resources/tombio-logo.png">
             <div><svg id="mainsvg"></svg></div>
         </div>-->
 
-        <img id="logovis" src="/sites/vis/taxv1/resources/tombio-logo.png">
-        <img id="closeVis" src="/sites/vis/taxv1/resources/close.png">
+        <img id="logovis" src="##taxv1path##resources/tombio-logo.png">
+        <img id="closeVis" src="##taxv1path##resources/close.png">
         <svg id="mainsvg"></svg>
 
         <!--<canvas width="960" height="500" style="display:none"></canvas>-->
 
     </div>
-    
+
     <audio id="pop">
-        <source src="/sites/vis/taxv1/resources/pop.mp3">
+        <source src="##taxv1path##resources/pop.mp3">
     </audio>
 </div>

@@ -34,6 +34,7 @@
         popupNode: null,
         gbifpagelimit: 20,
         gbifranks: ["kingdom", "phylum", "class", "order", "family", "genus", "species"],
+        atlasranks: ["kingdom", "phylum", "class", "order", "family", "genus", "species", "subspecies"],
         allranks: ["kingdom",
             "subkingdom",
             "infrakingdom",
@@ -79,6 +80,15 @@
             //{ name: "parent", icon: "parent-icon.png", func: getParent, toolTip: "Get parent" },
             { name: "expand", icon: "contract-icon.png", func: expandContractNode, toolTip: "Expand/contract" },
             { name: "select", icon: "select-icon.png", func: selectNBNTaxon, toolTip: "Use this taxon" }
+        ],
+        atlasButtons: [
+            { name: "children", icon: "children-icon.png", func: getChildren, toolTip: "Get children" },
+            { name: "delete", icon: "delete-icon.png", func: deleteNode, toolTip: "Delete taxon and any decendents" },
+            { name: "delete-children", icon: "delete-children-icon.png", func: deleteChildren, toolTip: "Delete taxon's children" },
+            { name: "delete-childless-children", icon: "delete-childless-children-icon.png", func: deleteChildlessChildren, toolTip: "Delete taxon's childless children" },
+            //{ name: "parent", icon: "parent-icon.png", func: getParent, toolTip: "Get parent" },
+            { name: "expand", icon: "contract-icon.png", func: expandContractNode, toolTip: "Expand/contract" },
+            { name: "select", icon: "select-icon.png", func: selectAtlasTaxon, toolTip: "Use this taxon" }
         ],
         nbnKingdoms: [
             {
@@ -138,8 +148,8 @@
 })();
 
 jQuery(document).ready(function () {
-    jQuery.get("/sites/vis/taxv1/taxv1-import.html?ver=" + tombiover, function (data) {
-        jQuery("#tombiod3").html(data);
+    jQuery.get(taxv1path + "taxv1-import.html?ver=" + tombiover, function (data) {
+        jQuery("#tombiod3").html(data.replace(/##taxv1path##/g, taxv1path));
 
         jQueryStyling();
 
@@ -187,7 +197,7 @@ function jQueryStyling() {
     jQuery("#closeVis")
         .click(function (event) {
             tombio.controlsOut = false;
-            jQuery("#taxControlUpDown").attr("src", "/sites/vis/taxv1/resources/down.png");
+            jQuery("#taxControlUpDown").attr("src", taxv1path + "resources/down.png");
             jQuery("#tombioMain").fadeOut(1000);
         });
 
@@ -199,7 +209,7 @@ function jQueryStyling() {
           //Initialise position of taxControls and attach handler for hide/show
           tombio.controlsOffset = jQuery("#taxControls").height() - 62;
 
-          console.log("Offset is: " + tombio.controlsOffset);
+          //console.log("Offset is: " + tombio.controlsOffset);
 
           jQuery("#taxControls").animate({
               top: "-" + tombio.controlsOffset + "px"
@@ -335,7 +345,7 @@ function jQueryStyling() {
             op = "+=";
             img = "up.png";
         }
-        jQuery("#taxControlUpDown").attr("src", "/sites/vis/taxv1/resources/" + img);
+        jQuery("#taxControlUpDown").attr("src", taxv1path + "resources/" + img);
         jQuery("#taxControls").animate({
             top: op + tombio.controlsOffset + "px"
         }, tombio.duration);
@@ -348,7 +358,7 @@ function nameFormatChanged() {
     tombio.authority = jQuery("#authority").is(':checked');
     tombio.nameFormat = jQuery("#nameFormat").val();
 
-    console.log("Authorith: " + tombio.authority);
+    //console.log("Authority: " + tombio.authority);
     update(tombio.matchingTaxa);
 }
 
@@ -376,7 +386,7 @@ function taxSearch() {
         
         if (jQuery("#taxSearch").val() == "x") {
             //For testing when NBN web service is down!
-            tombio.url = '/sites/vis/taxv1/json examples/NNB Search result.json';
+            tombio.url = taxv1path + "json examples/NNB Search result.json";
             jQuery.ajax({
                 url: tombio.url,
                 type: 'get',
@@ -391,7 +401,7 @@ function taxSearch() {
         } else {
             //NBN web service is not CORS enabled so have to go via a tombio server
             //call which is.
-            jQuery.growl.notice({ title: "", message: "Searching the NBN taxonomy for '" + jQuery("#taxSearch").val()  + '"' });
+            jQuery.growl.notice({ title: "", message: "Searching the NBN taxonomy for '" + jQuery("#taxSearch").val()  + "'" });
 
             tombio.url = 'https://data.nbn.org.uk/api/taxa?rows=100&q=';
             tombio.url += jQuery("#taxSearch").val();
@@ -424,7 +434,137 @@ function taxSearch() {
             //JSON display
             showJSON();
         });
-    } 
+    } else if (tombio.source == "atlas") {
+        jQuery.growl.notice({ title: "", message: "Searching the NBN Atlas taxonomy for '" + jQuery("#taxSearch").val() + '"' });
+
+        tombio.url = 'https://species-ws.nbnatlas.org/search?q=' + jQuery("#taxSearch").val();
+        tombio.url += "&pageSize=100";
+            tombio.url += "&fq=taxonomicStatus:accepted";
+
+        d3.json(tombio.url, function (error, jsonobject) {
+            if (error) return console.warn(error);
+
+            tombio.jsonobject = jsonobject;
+
+            //JSON display
+            showJSON();
+
+            processAtlasSearch(tombio.jsonobject);
+        });
+
+    }
+}
+
+function processAtlasSearch(jsonobject) {
+
+    var searchResults = jsonobject.searchResults.results;
+
+    if (searchResults.length == 0) {
+        jQuery.growl.warning({ title: "", message: "No taxa in the NBN Atlas taxonomy matched your search term" });
+    }
+
+    if (!tombio.matchingTaxa.children) tombio.matchingTaxa.children = [];
+
+    //Find searchNode if it exists
+    var searchNode;
+    for (var i = 0; i < tombio.matchingTaxa.children.length; i++) {
+        if (tombio.matchingTaxa.children[i].name == "search") {
+            searchNode = tombio.matchingTaxa.children[i];
+            break;
+        }
+    }
+    //Create searchNode if it doesn't exist
+    if (!searchNode) {
+        searchNode = { name: "search", parent: "atlas", children: [], type: "atlasSearch"};
+        tombio.matchingTaxa.children.push(searchNode);
+        var exactNode = { name: "exact matches", parent: "search", children: [], type: "atlasSearch" };
+        var fuzzyNode = { name: "fuzzy matches", parent: "search", children: [], type: "atlasSearch" };
+        searchNode.children = [exactNode, fuzzyNode];
+    } else {
+        //Empty the exact and fuzzy nodes
+        expandNode(searchNode);
+        var exactNode = searchNode.children[0];
+        exactNode.children = [];
+        exactNode._children = null;
+        var fuzzyNode = searchNode.children[1];
+        fuzzyNode.children = [];
+        fuzzyNode._children = null;
+    }
+    
+    for (var i = 0; i < searchResults.length; i++) {
+
+        var taxon = searchResults[i];
+
+        var isExact = jQuery("#taxSearch").val().toLowerCase() == taxon.name.toLowerCase() ||
+                        jQuery("#taxSearch").val().toLowerCase() == taxon.commonNameSingle.toLowerCase()
+        if (isExact) {
+            console.log(taxon.name, taxon.class, taxon.commonNameSingle)
+            var searchSubnode = exactNode;
+        } else {
+            var searchSubnode = fuzzyNode;
+        }
+
+        var matchClass = null;
+        if (!taxon.class) {
+            matchClass = searchSubnode;
+        } else {
+            for (j = 0; j < searchSubnode.children.length; j++) {
+                var searchClass = searchSubnode.children[j];
+                if (searchClass.name == taxon.class) {
+                    matchClass = searchClass;
+                    if (!matchClass.children) {
+                        if (matchClass._children) {
+                            matchClass.children = matchClass._children;
+                            matchClass._children = null;
+                        } else {
+                            matchClass.children = [];
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (!matchClass) {
+            matchClass = {
+                name: taxon.class,
+                parent: searchSubnode.name,
+                children: [],
+                //offset: 0,
+                type: "atlasSearchClass"
+            }
+            searchSubnode.children.push(matchClass);
+        }
+
+        var matchTaxon = null;
+        for (j = 0; j < matchClass.children.length; j++) {
+            var searchTaxon = matchClass.children[j];
+            
+            if (searchTaxon.name == taxon.name) {
+                //The taxon is already represented
+                matchTaxon = searchTaxon;
+                break;
+            }
+        }
+
+        if (!matchTaxon) {
+            matchTaxon = {
+                name: taxon.commonNameSingle.length > 0 ? taxon.name + " (" + taxon.commonNameSingle + ")" : taxon.name,
+                parent: matchClass.name,
+                offset: 0,
+                type: "atlasSearchMatch",
+                taxonObj: taxon
+            }
+            matchClass.children.push(matchTaxon);
+        }
+    }
+
+    tombio.matchingTaxa.x0 = tombio.height / 2;
+    tombio.matchingTaxa.y0 = 0;
+
+    contractNode(fuzzyNode);
+
+    update(tombio.matchingTaxa);
 }
 
 function processNBNSearch(jsonobject) {
@@ -446,6 +586,7 @@ function processNBNSearch(jsonobject) {
         searchNode = { name: "search", parent: "nbn", children: [], type: "nbnSearch", authority: "", commonName: "" };
         tombio.matchingTaxa.children.push(searchNode);
     }
+
     if (!searchNode.children) {
         if (searchNode._children) {
             searchNode.children = searchNode._children;
@@ -685,6 +826,101 @@ function processGBIFSearch(jsonobject) {
     //console.log(tombio.jsonobject);
 }
 
+function processAtlasChildren(jsonobject, d) {
+
+    //console.log("d", d)
+    //console.log("jsonobject", jsonobject)
+    //console.log("results", jsonobject.searchResults.results)
+
+    //Make array of names of current children
+    var currentChildren = [];
+    if (d.children) {
+        for (var i = 0; i < d.children.length; i++) {
+            currentChildren.push(d.children[i].name);
+        }
+    } else {
+        d.children = [];
+    }
+
+    //Inform if no children
+    if (jsonobject.searchResults.results.length == 0) {
+        jQuery.growl.warning({ title: "", message: d.name + " has no children in the NBN Atlas taxonomy" });
+    }
+    //Process the results
+    for (var i = 0; i < jsonobject.searchResults.results.length; i++) {
+
+        var taxon = jsonobject.searchResults.results[i];
+
+        //The atlas web services do not have a way to fetch immediate children of a taxon regardless of rank. You 
+        //must specify a rank. So we haved specified a rank (from atlasranks) that is guaranteed to fetch results 
+        //now we work backwards from there to get the immediate child.
+        var taxonDecendent = null;
+        var taxonGuid = null;
+        var nextrank = d.rank;
+        do {
+            nextrank = tombio.allranks[tombio.allranks.indexOf(nextrank) + 1];
+            if (nextrank == taxon.rank) {
+                taxonDecendent = taxon.name;
+                taxonGuid = taxon.guid;
+            } else {
+                taxonDecendent = taxon[nextrank];
+                taxonGuid = taxon[nextrank + "Guid"];
+            }
+        }
+        while (!taxonDecendent);
+
+        //Check that child isn't already represented
+        if (jQuery.inArray(taxonDecendent, currentChildren) == -1) {
+
+            var newTaxon = {
+                name: taxonDecendent,
+                parent: d.name,
+                children: [],
+                taxonKey: taxonGuid,
+                rank: nextrank.toLowerCase(),
+                offset: 0,
+                type: "",
+                authority: (taxonDecendent == taxon.name) && taxon.author ? taxon.author : "",
+                commonName: (taxonDecendent == taxon.name) && taxon.commonNameSingle ? taxon.commonNameSingle : ""
+            };
+            if (!d.children) d.children = []
+            d.children.push(newTaxon);
+            currentChildren.push(taxonDecendent);
+        }
+    }
+
+    d.children.sort(function (a, b) {
+
+        var iRankA = tombio.allranks.indexOf(a.rank);
+        var iRankB = tombio.allranks.indexOf(b.rank);
+
+        if (iRankA == -1) iRankA = 1000;
+        if (iRankB == -1) iRankB = 1000;
+
+        if (iRankA != iRankB) {
+            //First sort by position of rank in list
+            return iRankA - iRankB;
+        } else if (a.rank < b.rank) {
+            //Next sort alphabetically by rank name
+            return -1;
+        } else if (b.rank < a.rank) {
+            return 1;
+        } else if (a.name < b.name) {
+            //Next sort alphabetically by name
+            return -1;
+        } else {
+            return 1;
+        }
+    })
+
+    tombio.matchingTaxa.x0 = tombio.height / 2;
+    tombio.matchingTaxa.y0 = 0;
+
+    if (tombio.matchingTaxa.children.length > 0) {
+        update(d);
+    }
+}
+
 function processGBIFChildren(jsonobject, d) {
     
     //If the current array of children has
@@ -864,6 +1100,76 @@ function selectNBNTaxon(d) {
     
 }
 
+function selectAtlasTaxon(d) {
+    makePop();
+
+    jQuery.growl.notice({ title: "", message: "Displaying ancestors of " + d.name + " from the NBN Atlas taxonomy" });
+
+    //Contract search node
+    var searchNode;
+    for (var i = 0; i < tombio.matchingTaxa.children.length; i++) {
+        if (tombio.matchingTaxa.children[i].name == "search") {
+            searchNode = tombio.matchingTaxa.children[i];
+            break;
+        }
+    }
+    searchNode._children = searchNode.children;
+    searchNode.children = null;
+    update(tombio.matchingTaxa);
+
+    var lastMatched = tombio.matchingTaxa;
+    var taxon = d.taxonObj;
+
+    //Enrich the taxon object to include property corresponding to it's rank (simplifies rest of code)
+    taxon[taxon.rank] = taxon.name;
+
+    for (k = 0; k < tombio.allranks.length; k++) {
+
+        var rank = tombio.allranks[k];
+
+        //Ignore this rank if it is not in our taxon.
+        if (!taxon[rank]) continue;
+
+        expandNode(lastMatched);
+
+        var matched = false;
+        for (var j = 0; j < lastMatched.children.length; j++) {
+            if (lastMatched.children[j].name == taxon.name) {
+                lastMatched.children[j].taxonKey = taxon.guid; //Ensure that higher taxa have full guid where available
+                matched = true;
+                break;
+            } else if (lastMatched.children[j].name == taxon[rank]) {
+                matched = true;
+                break;
+            }
+        }
+
+        if (matched) {
+            lastMatched = lastMatched.children[j];
+        } else {
+            var newTaxon = {
+                name: taxon[rank],
+                parent: lastMatched.name,
+                children: [],
+                taxonKey:  rank == taxon.rank ? taxon.guid : taxon[rank + "Guid"],
+                rank: rank,
+                offset: 0,
+                type: "",
+                authority: rank == taxon.rank ? (taxon.author ? taxon.author : "") : "",
+                commonName: rank == taxon.rank ? (taxon.commonNameSingle ? taxon.commonNameSingle : "") : ""
+            };
+
+            lastMatched.children.push(newTaxon);
+            lastMatched = newTaxon;
+        }
+
+        if (rank == taxon.rank) {
+            break;
+        }
+    }
+    update(tombio.matchingTaxa);
+}
+
 function backtrackNBNTaxon(urlExtension) {
 
     tombio.url = 'http://www.tombio.uk/tombio-rest-call?https://data.nbn.org.uk/api/taxa/';
@@ -1041,7 +1347,7 @@ function update(source) {
         .style("fill", function (d) {
             if (d.name == "...") {
                 return "white";
-            } else if (d.type.match("^nbn")) {
+            } else if (d.type.match("^(nbn|atlas)")) {
                 return "pink";
             } else {
                 return rankscale(d.rank);
@@ -1097,7 +1403,7 @@ function update(source) {
             .style("font-style", "normal")
             .text(function (d) {
                 if (tombio.authority) {
-                    return " " + d.authority;
+                    return d.authority ? " " + d.authority : "";
                 } else {
                     return "";
                 }
@@ -1117,7 +1423,7 @@ function update(source) {
                 return rankFont(d.rank);
             })
             .text(function (d) {
-                if (d.commonName == "") {
+                if (!d.commonName || d.commonName == "") {
                     return d.name;
                 }
             })
@@ -1125,7 +1431,7 @@ function update(source) {
             .style("font-style", "normal")
             .text(function (d) {
                 if (tombio.authority && d.commonName == "") {
-                    return " " + d.authority;
+                    return d.authority ? " " + d.authority : "";
                 } else {
                     return "";
                 }
@@ -1143,7 +1449,7 @@ function update(source) {
             .style("font-style", "normal")
             .text(function (d) {
                 if (tombio.authority) {
-                    return " " + d.authority;
+                    return d.authority ? " " + d.authority : "";
                 } else {
                     return "";
                 }
@@ -1151,7 +1457,7 @@ function update(source) {
            .append("tspan")
             .style("font-style", "normal")
             .text(function (d) {
-                if (d.commonName != "") {
+                if (d.commonName && d.commonName != "") {
                     return " (" + toTitleCase(d.commonName) + ")";
                 } else {
                     return "";
@@ -1227,6 +1533,7 @@ function update(source) {
         .attr("id", "popupNode");
 
     var nodeButtons = tombio[tombio.source + "Buttons"];
+
     nodeButtons.forEach(function (nodeButton) {
 
         nodeButton.g = tombio.popupNode.append("g").attr("opacity", 0)
@@ -1250,7 +1557,7 @@ function update(source) {
             .attr("y", -10)
             .attr("width", "20px")
             .attr("height", "20px")
-            .attr("xlink:href", "/sites/vis/taxv1/resources/" + nodeButton.icon);
+            .attr("xlink:href", taxv1path + "resources/" + nodeButton.icon);
     });
     
     tombio.nodeButtonsShown = false;
@@ -1327,7 +1634,7 @@ function showNodeButtons(d)
                 useNodeButtons.push(nodeButton);
             }
         } else if (nodeButton.name == "children") {
-            if (!d._children && (!d.offset || d.offset > -1) && !d.type.match("^nbn")) { //d.offset set to -1 indicates end of paging
+            if (!d._children && (!d.offset || d.offset > -1) && !d.type.match("^(nbn|atlas)")) { //d.offset set to -1 indicates end of paging
                 useNodeButtons.push(nodeButton);
             }
         } else if (nodeButton.name == "delete-children") {
@@ -1339,7 +1646,7 @@ function showNodeButtons(d)
                 useNodeButtons.push(nodeButton);
             }
         } else if (nodeButton.name == "select") {
-            if (d.type == "nbnSearchMatch") {
+            if (d.type == "nbnSearchMatch" || d.type == "atlasSearchMatch") {
                 useNodeButtons.push(nodeButton);
             }
         } else {
@@ -1364,10 +1671,10 @@ function showNodeButtons(d)
         if (nodeButton.name == "expand") {
             if (d._children) {
                 nodeButton.g.select("image")
-                    .attr("xlink:href", "/sites/vis/taxv1/resources/expand-icon.png");
+                    .attr("xlink:href", taxv1path + "resources/expand-icon.png");
             } else {
                 nodeButton.g.select("image")
-                    .attr("xlink:href", "/sites/vis/taxv1/resources/contract-icon.png");
+                    .attr("xlink:href", taxv1path + "resources/contract-icon.png");
             }
         }
 
@@ -1453,6 +1760,41 @@ function getChildren(d) {
             tombio.jsonobject = jsonobject;
             showJSON();
         });
+    } else if (tombio.source == "atlas") {
+
+        if (d.name == "ATLAS") {
+            //Code in here to get all phylla
+            tombio.url = "https://species-ws.nbnatlas.org/search.json?pageSize=99999&q=&fq=rank:kingdom AND taxonomicStatus:accepted" 
+            jQuery.growl.notice({ title: "", message: "Retrieving all taxa of rank 'kingdom' in the ATLAS backbone taxonomy" });
+        } else {
+            //The current taxon rank could be anything from the array allranks, but for the purposes of the initial fetch of children,
+            //we will only work with ranks found in atlasranks. So we need to find the next rank in allranks that is also in atlasranks.
+            //(This is because the atlas web services do not have a way to fetch immediate children of a taxon regardless of rank. You 
+            //must specify a rank. So we specify a rank (from atlasranks) that is guaranteed to fetch results and then work backwards
+            //from there to get the immediate child.)
+            var nextrank = null;
+            var nextAllRank = d.rank;
+            do {
+                nextAllRank = tombio.allranks[tombio.allranks.indexOf(nextAllRank) + 1];
+                if (tombio.atlasranks.indexOf(nextAllRank) > -1)
+                    nextrank = nextAllRank;
+            }
+            while (!nextrank)
+
+            //var nextrank = tombio.atlasranks[tombio.atlasranks.indexOf(d.rank) + 1];
+
+            tombio.url = "https://species-ws.nbnatlas.org/search.json?pageSize=99999&q=&fq=rkid_" + d.rank + ":" + d.taxonKey + " AND rank:" + nextrank + " AND taxonomicStatus:accepted"
+            jQuery.growl.notice({ title: "", message: "Retrieving children of rank " + nextrank + " of " + d.rank + " " + d.name + " in the ATLAS backbone taxonomy" });
+        }
+        d3.json(tombio.url, function (error, jsonobject) {
+            if (error) return console.warn(error);
+
+            processAtlasChildren(jsonobject, d);
+
+            //JSON display
+            tombio.jsonobject = jsonobject;
+            showJSON();
+        });
     }
 }
 
@@ -1475,6 +1817,28 @@ function expandContractNode (d) {
         d._children = null;
     }
     update(d);
+}
+
+function expandNode(d) {
+    if (!d.children) {
+        if (d._children) {
+            d.children = d._children;
+            d._children = null;
+        } else {
+            d.children = [];
+        }
+    }
+}
+
+function contractNode(d) {
+    if (!d._children) {
+        if (d.children) {
+            d._children = d.children;
+            d.children = null;
+        } else {
+            d._children = [];
+        }
+    }
 }
 
 function deleteNode(d) {
@@ -1609,6 +1973,7 @@ function toolTip(str) {
 }
 
 function toTitleCase(str) {
+    if (!str) return "";
     return str.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
 }
 
@@ -1628,3 +1993,4 @@ function makePop() {
         tombio.pop[0].play();
     }
 }
+
