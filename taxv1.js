@@ -201,19 +201,26 @@ function jQueryStyling() {
             jQuery("#tombioMain").fadeOut(1000);
         });
 
+    function showVis(fadeTime) {
+
+        if (fadeTime) {
+            jQuery("#tombioMain").fadeIn(1000);
+        } else {
+            jQuery("#tombioMain").show();
+        }
+        //Initialise position of taxControls and attach handler for hide/show
+        tombio.controlsOffset = jQuery("#taxControls").height() - 62;
+
+        jQuery("#taxControls").animate({
+            top: "-" + tombio.controlsOffset + "px"
+        }, 0);
+    }
+
     jQuery("#showVis")
       .button()
       .text("Show visualisation")
       .click(function () {
-          jQuery("#tombioMain").fadeIn(1000);
-          //Initialise position of taxControls and attach handler for hide/show
-          tombio.controlsOffset = jQuery("#taxControls").height() - 62;
-
-          //console.log("Offset is: " + tombio.controlsOffset);
-
-          jQuery("#taxControls").animate({
-              top: "-" + tombio.controlsOffset + "px"
-          }, 0);
+          showVis(1000)
       });
 
     jQuery("#tombioInfoDialog").dialog({
@@ -352,6 +359,11 @@ function jQueryStyling() {
 
         tombio.controlsOut = !tombio.controlsOut; 
     });
+
+    if (!showFrontPage) {
+        jQuery("#closeVis").hide();
+        showVis();
+    }
 }
 
 function nameFormatChanged() {
@@ -1765,7 +1777,7 @@ function getChildren(d) {
         if (d.name == "ATLAS") {
             //Code in here to get all phylla
             tombio.url = "https://species-ws.nbnatlas.org/search.json?pageSize=99999&q=&fq=rank:kingdom AND taxonomicStatus:accepted" 
-            jQuery.growl.notice({ title: "", message: "Retrieving all taxa of rank 'kingdom' in the ATLAS backbone taxonomy" });
+            jQuery.growl.notice({ title: "", message: "Retrieving all taxa of rank 'kingdom' in the NBN ATLAS taxonomy" });
         } else {
             //The current taxon rank could be anything from the array allranks, but for the purposes of the initial fetch of children,
             //we will only work with ranks found in atlasranks. So we need to find the next rank in allranks that is also in atlasranks.
@@ -1784,7 +1796,7 @@ function getChildren(d) {
             //var nextrank = tombio.atlasranks[tombio.atlasranks.indexOf(d.rank) + 1];
 
             tombio.url = "https://species-ws.nbnatlas.org/search.json?pageSize=99999&q=&fq=rkid_" + d.rank + ":" + d.taxonKey + " AND rank:" + nextrank + " AND taxonomicStatus:accepted"
-            jQuery.growl.notice({ title: "", message: "Retrieving children of rank " + nextrank + " of " + d.rank + " " + d.name + " in the ATLAS backbone taxonomy" });
+            jQuery.growl.notice({ title: "", message: "Retrieving children of rank " + nextrank + " of " + d.rank + " " + d.name + " in the NBN ATLAS taxonomy" });
         }
         d3.json(tombio.url, function (error, jsonobject) {
             if (error) return console.warn(error);
