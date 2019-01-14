@@ -435,7 +435,7 @@ function taxSearch() {
     } else if (tombio.source == "gbif") {
         jQuery.growl.notice({ title: "", message: "Searching the GBIF backbone taxonomy for '" + jQuery("#taxSearch").val() + '"' });
 
-        tombio.url = 'http://api.gbif.org/v1/species/match?name=' + jQuery("#taxSearch").val();
+        tombio.url = 'https://api.gbif.org/v1/species/match?name=' + jQuery("#taxSearch").val();
         tombio.url += "&verbose=true&strict=true";
 
         d3.json(tombio.url, function (error, jsonobject) {
@@ -1750,12 +1750,12 @@ function getChildren(d) {
             jQuery.growl.notice({ title: "", message: "Retrieving all Kingdoms from GBIF backbone taxonomy"});
 
             //This to enable user to list all Kingdoms from the GBIF root
-            tombio.url = 'http://api.gbif.org/v1/species/search?rank=KINGDOM&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c';
+            tombio.url = 'https://api.gbif.org/v1/species/search?rank=KINGDOM&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c';
         } else {
 
             jQuery.growl.notice({ title: "", message: "Retrieving children of " + d.name + " in the GBIF backbone taxonomy" });
 
-            tombio.url = 'http://api.gbif.org/v1/species/' + d.taxonKey + '/children';
+            tombio.url = 'https://api.gbif.org/v1/species/' + d.taxonKey + '/children';
             if (d.offset > 0) {
                 tombio.url += '?offset=' + d.offset;
             } else {
